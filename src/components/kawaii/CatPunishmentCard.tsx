@@ -50,7 +50,7 @@ export const CatPunishmentCard: React.FC<CatPunishmentCardProps> = ({ onProceed 
       title: '100 Cuddles Duty',
       subtitle: 'Mandatory snuggles',
       icon: '💖',
-      bubbleText: 'Sentence: 100 extra cuddles & apologies to Madam Jii! 🧸',
+      bubbleText: 'Sentence: 100 extra cuddles & apologies to you! 🧸',
       reactionSound: () => kawaiiAudio.playSparkle(),
     },
   ];
@@ -94,17 +94,17 @@ export const CatPunishmentCard: React.FC<CatPunishmentCardProps> = ({ onProceed 
       {/* Decorative Washi Tape */}
       <div className="w-36 h-6 washi-tape-cream rounded-sm mb-3 flex items-center justify-center border-t border-b border-kawaii-choco-900/10 shadow-sm">
         <span className="text-[10px] tracking-widest uppercase font-bold text-kawaii-choco-800/80 font-sans">
-          COURT OF MADAM JII ⚖️
+          THE KITTY COURT ⚖️
         </span>
       </div>
 
       {/* Main Cute Prompt */}
       <div className="text-center mb-3">
         <span className="text-xs uppercase tracking-widest font-sans text-kawaii-strawberry font-bold px-3 py-0.5 rounded-full bg-kawaii-pink-100 border border-kawaii-pink-200 inline-block mb-1">
-          Madam Jii&apos;s Special Tribunal
+          Special Kitty Tribunal
         </span>
         <h2 className="font-handwriting text-3xl sm:text-4xl text-kawaii-choco-900 font-bold tracking-wide mt-1">
-          Madam Jii, what punishment should kabiii get? 🐱
+          What punishment should kabiii get? 🐱
         </h2>
         <p className="text-xs sm:text-sm text-kawaii-choco-600 font-sans font-medium mt-0.5">
           Tap the hammer, cat, or options below! (Harmless & squeaky)
@@ -181,7 +181,7 @@ export const CatPunishmentCard: React.FC<CatPunishmentCardProps> = ({ onProceed 
             )}
           </AnimatePresence>
 
-          {/* LEFT: Madam Jii The Cat Judge */}
+          {/* LEFT: Madamjii The Cat Judge */}
           <motion.div
             onClick={() => handleTriggerPunishment()}
             whileHover={{ scale: 1.05 }}
@@ -197,7 +197,7 @@ export const CatPunishmentCard: React.FC<CatPunishmentCardProps> = ({ onProceed 
             className="relative z-20 flex flex-col items-center mr-6 sm:mr-10 cursor-pointer"
             role="button"
             tabIndex={0}
-            aria-label="Click Madam Jii to execute punishment"
+            aria-label="Click Madamjii to execute punishment"
           >
             {/* Animated Toy Hammer in Paw */}
             {selectedPunishment === 'hammer' && (
@@ -270,7 +270,7 @@ export const CatPunishmentCard: React.FC<CatPunishmentCardProps> = ({ onProceed 
               <ellipse cx="62" cy="80" rx="7" ry="5" fill="#FFFDF9" stroke="#542E1D" strokeWidth="2" />
             </svg>
             <span className="text-[11px] font-bold text-kawaii-choco-900 bg-white/95 px-2.5 py-0.5 rounded-full border border-kawaii-pink-200 mt-1 shadow-sm">
-              Madam Jii 🐾
+              Madamjii 🐾
             </span>
           </motion.div>
 

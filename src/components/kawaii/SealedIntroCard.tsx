@@ -152,7 +152,7 @@ export const SealedIntroCard: React.FC<SealedIntroCardProps> = ({ onOpen }) => {
             <div className="w-36 h-1 bg-kawaii-pink-100 rounded-full mb-1.5" />
             <div className="w-28 h-1 bg-kawaii-pink-100 rounded-full" />
             <span className="font-handwriting text-kawaii-strawberry text-sm font-bold mt-2">
-              For Madam Jii… ♡
+              For You… ♡
             </span>
           </motion.div>
 
