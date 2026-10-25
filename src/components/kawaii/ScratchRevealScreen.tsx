@@ -103,7 +103,7 @@ const SingleScratchCard: React.FC<SingleCardProps> = ({
     ctx.font = 'bold 26px system-ui, -apple-system, sans-serif';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillText('✨ Scratch to reveal ♡ ✨', w / 2, h / 2);
+    ctx.fillText('Scratch to reveal ♡', w / 2, h / 2);
     ctx.restore();
   }, []);
 
@@ -326,21 +326,6 @@ const SingleScratchCard: React.FC<SingleCardProps> = ({
             }`}
             style={{ touchAction: 'none' }}
           />
-
-          {/* Sparkle burst on successful reveal */}
-          <AnimatePresence>
-            {isRevealed && (
-              <motion.div
-                initial={{ opacity: 0, scale: 0.5 }}
-                animate={{ opacity: 1, scale: 1.25 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.6 }}
-                className="absolute inset-0 flex items-center justify-center pointer-events-none z-20"
-              >
-                <div className="text-5xl animate-bounce">✨</div>
-              </motion.div>
-            )}
-          </AnimatePresence>
         </div>
 
         {/* Controls while scratching */}
