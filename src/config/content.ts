@@ -195,11 +195,11 @@ export const content: AppContent = {
     title: "Scratch to reveal ✨",
     card1: {
       image: "/images/scratch-bite.jpg",
-      caption: "I will bite here if you not accept my sorry",
+      caption: "I will bite here if you don't accept my apology",
     },
     card2: {
       image: "/images/scratch-chocopie.jpg",
-      caption: "if you forgive me and accept my sorry I will buy a lotte choco pie for you",
+      caption: "If you forgive me and accept my apology, I will buy a Lotte Choco Pie for you",
     },
   },
 
