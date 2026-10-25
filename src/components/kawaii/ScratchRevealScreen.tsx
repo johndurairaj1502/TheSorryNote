@@ -1,73 +1,66 @@
 'use client';
 
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useRef, useLayoutEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { content } from '@/config/content';
 import { kawaiiAudio } from '@/utils/audio';
-import { Sparkles, ArrowRight, Heart, Eye } from 'lucide-react';
+import { ArrowRight, Heart, Eye } from 'lucide-react';
 import { HeartBiscuit, ChocoPie, KawaiiBow } from '../KawaiiStickers';
 
-interface ScratchRevealScreenProps {
-  onComplete: () => void;
+interface SingleCardProps {
+  cardNumber: 1 | 2;
+  image: string;
+  caption: string;
+  isSecondCard: boolean;
+  onDone: () => void;
 }
 
-export const ScratchRevealScreen: React.FC<ScratchRevealScreenProps> = ({ onComplete }) => {
-  const [activeCard, setActiveCard] = useState<1 | 2>(1);
+const SingleScratchCard: React.FC<SingleCardProps> = ({
+  cardNumber,
+  image,
+  caption,
+  isSecondCard,
+  onDone,
+}) => {
   const [isRevealed, setIsRevealed] = useState<boolean>(false);
   const [scratchProgress, setScratchProgress] = useState<number>(0);
-  const [isTransitioning, setIsTransitioning] = useState<boolean>(false);
+  const [isLeaving, setIsLeaving] = useState<boolean>(false);
 
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const cardContainerRef = useRef<HTMLDivElement | null>(null);
   const isScratchingRef = useRef<boolean>(false);
   const lastPointRef = useRef<{ x: number; y: number } | null>(null);
   const lastAudioTimeRef = useRef<number>(0);
   const hasRevealedRef = useRef<boolean>(false);
 
-  const config = content.scratchCards;
-  const currentCardData = activeCard === 1 ? config.card1 : config.card2;
-
-  // Initialize the scratch-off canvas layer with pixel-perfect resolution
-  const initCanvas = useCallback(() => {
+  // Paint the scratch foil onto the canvas buffer synchronously
+  const paintScratchLayer = useCallback(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
     const ctx = canvas.getContext('2d', { willReadFrequently: true });
     if (!ctx) return;
 
-    // Use container dimensions if canvas hasn't finished layout yet
-    const container = cardContainerRef.current;
-    const rect = container ? container.getBoundingClientRect() : canvas.getBoundingClientRect();
-    const wCss = rect.width || 340;
-    const hCss = rect.height || 255;
-
-    const dpr = typeof window !== 'undefined' ? Math.min(window.devicePixelRatio || 1, 2.5) : 1;
-
-    // Set buffer resolution
-    canvas.width = Math.round(wCss * dpr);
-    canvas.height = Math.round(hCss * dpr);
-
     const w = canvas.width;
     const h = canvas.height;
 
-    // Reset composite mode to standard paint
+    // Reset composite mode
     ctx.globalCompositeOperation = 'source-over';
 
-    // 1. Shimmering rose gold / silvery pink foil gradient
+    // 1. Shimmering metallic foil gradient
     const grad = ctx.createLinearGradient(0, 0, w, h);
     grad.addColorStop(0, '#FFD4E2');
-    grad.addColorStop(0.3, '#FFF2F7');
-    grad.addColorStop(0.6, '#FFB8CF');
+    grad.addColorStop(0.25, '#FFF2F7');
+    grad.addColorStop(0.55, '#FFB8CF');
     grad.addColorStop(0.85, '#FFA7C2');
     grad.addColorStop(1, '#FF85AC');
     ctx.fillStyle = grad;
     ctx.fillRect(0, 0, w, h);
 
-    // 2. Cute diagonal shimmer stripes
+    // 2. Crisp diagonal shimmer stripes
     ctx.save();
     ctx.strokeStyle = 'rgba(255, 255, 255, 0.45)';
-    ctx.lineWidth = 18 * dpr;
-    for (let x = -w; x < w * 2; x += 45 * dpr) {
+    ctx.lineWidth = 36;
+    for (let x = -w; x < w * 2; x += 85) {
       ctx.beginPath();
       ctx.moveTo(x, 0);
       ctx.lineTo(x + h, h);
@@ -75,70 +68,52 @@ export const ScratchRevealScreen: React.FC<ScratchRevealScreenProps> = ({ onComp
     }
     ctx.restore();
 
-    // 3. Cute sprinkled hearts & stars watermark
+    // 3. Delicate hearts & sparkles watermark
     ctx.save();
     ctx.fillStyle = 'rgba(255, 77, 121, 0.28)';
-    ctx.font = `${18 * dpr}px sans-serif`;
-    for (let x = 20 * dpr; x < w - 10; x += 60 * dpr) {
-      for (let y = 30 * dpr; y < h - 10; y += 50 * dpr) {
+    ctx.font = '32px sans-serif';
+    for (let x = 40; x < w - 20; x += 110) {
+      for (let y = 60; y < h - 20; y += 95) {
         ctx.fillText('♡', x, y);
       }
     }
     ctx.restore();
 
-    // 4. Center Badge: "✨ Scratch to uncover ♡ ✨"
+    // 4. Center Cute Badge: "✨ Scratch to reveal ♡ ✨"
     ctx.save();
-    ctx.shadowColor = 'rgba(84, 46, 29, 0.2)';
-    ctx.shadowBlur = 10 * dpr;
-    ctx.shadowOffsetY = 4 * dpr;
+    ctx.shadowColor = 'rgba(84, 46, 29, 0.22)';
+    ctx.shadowBlur = 18;
+    ctx.shadowOffsetY = 6;
 
-    const badgeW = Math.min(240 * dpr, w * 0.75);
-    const badgeH = 48 * dpr;
+    const badgeW = Math.min(460, w * 0.76);
+    const badgeH = 88;
     const badgeX = (w - badgeW) / 2;
     const badgeY = (h - badgeH) / 2;
 
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.96)';
     ctx.beginPath();
-    ctx.roundRect(badgeX, badgeY, badgeW, badgeH, 24 * dpr);
+    ctx.roundRect(badgeX, badgeY, badgeW, badgeH, 44);
     ctx.fill();
 
     ctx.strokeStyle = '#FF85AC';
-    ctx.lineWidth = 2.5 * dpr;
+    ctx.lineWidth = 4;
     ctx.stroke();
 
     ctx.fillStyle = '#FF4D79';
-    ctx.font = `bold ${14 * dpr}px system-ui, -apple-system, sans-serif`;
+    ctx.font = 'bold 26px system-ui, -apple-system, sans-serif';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillText('✨ Scratch to reveal ♡ ✨', w / 2, h / 2);
     ctx.restore();
-
-    hasRevealedRef.current = false;
-    setIsRevealed(false);
-    setScratchProgress(0);
   }, []);
 
-  // Initialize canvas with a tiny delay to ensure proper CSS layout bounds
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      initCanvas();
-    }, 60);
+  // useLayoutEffect runs SYNCHRONOUSLY before the browser renders the first frame
+  // This guarantees the canvas is 100% opaque and covered BEFORE ANY PAINT!
+  useLayoutEffect(() => {
+    paintScratchLayer();
+  }, [paintScratchLayer]);
 
-    return () => clearTimeout(timer);
-  }, [activeCard, initCanvas]);
-
-  // Window resize re-init if not already revealed
-  useEffect(() => {
-    const handleResize = () => {
-      if (!hasRevealedRef.current) {
-        initCanvas();
-      }
-    };
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, [initCanvas]);
-
-  // Force reveal remaining card
+  // Complete reveal
   const completeReveal = useCallback(() => {
     if (hasRevealedRef.current) return;
     hasRevealedRef.current = true;
@@ -157,7 +132,7 @@ export const ScratchRevealScreen: React.FC<ScratchRevealScreenProps> = ({ onComp
     }
   }, []);
 
-  // Sample scratched pixels to compute percentage
+  // Compute scratched percentage by sampling
   const checkScratchPercentage = useCallback(() => {
     const canvas = canvasRef.current;
     if (!canvas || hasRevealedRef.current) return;
@@ -171,7 +146,7 @@ export const ScratchRevealScreen: React.FC<ScratchRevealScreenProps> = ({ onComp
     const data = imgData.data;
 
     let transparentPixels = 0;
-    const stride = 32; // Sample every 32nd pixel for instantaneous check
+    const stride = 32;
     const totalSampled = (data.length / 4) / stride;
 
     for (let i = 0; i < data.length; i += 4 * stride) {
@@ -183,13 +158,13 @@ export const ScratchRevealScreen: React.FC<ScratchRevealScreenProps> = ({ onComp
     const pct = Math.min(100, Math.round((transparentPixels / totalSampled) * 100));
     setScratchProgress(pct);
 
-    // Scratch threshold: 35% is very comfortable and satisfying
-    if (pct >= 35) {
+    // Scratch threshold: ~32% triggers full smooth reveal
+    if (pct >= 32) {
       completeReveal();
     }
   }, [completeReveal]);
 
-  // Scratch drawing calculation with direct 1:1 viewport-to-buffer mapping
+  // Scratch with exact 1:1 mapping from screen client coordinates to 680x510 canvas buffer
   const scratchAt = (clientX: number, clientY: number) => {
     const canvas = canvasRef.current;
     if (!canvas || hasRevealedRef.current) return;
@@ -200,17 +175,12 @@ export const ScratchRevealScreen: React.FC<ScratchRevealScreenProps> = ({ onComp
     const rect = canvas.getBoundingClientRect();
     if (!rect.width || !rect.height) return;
 
-    // Exact scale factor between display coordinates and internal canvas resolution
-    const scaleX = canvas.width / rect.width;
-    const scaleY = canvas.height / rect.height;
-
-    const x = (clientX - rect.left) * scaleX;
-    const y = (clientY - rect.top) * scaleY;
-    const dpr = typeof window !== 'undefined' ? (window.devicePixelRatio || 1) : 1;
+    const x = (clientX - rect.left) * (canvas.width / rect.width);
+    const y = (clientY - rect.top) * (canvas.height / rect.height);
 
     ctx.save();
     ctx.globalCompositeOperation = 'destination-out';
-    ctx.lineWidth = 50 * dpr;
+    ctx.lineWidth = 80; // comfortable wide brush on 680x510 buffer
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
 
@@ -220,7 +190,7 @@ export const ScratchRevealScreen: React.FC<ScratchRevealScreenProps> = ({ onComp
       ctx.lineTo(x, y);
       ctx.stroke();
     } else {
-      ctx.arc(x, y, 25 * dpr, 0, Math.PI * 2);
+      ctx.arc(x, y, 40, 0, Math.PI * 2);
       ctx.fill();
     }
     ctx.restore();
@@ -237,7 +207,7 @@ export const ScratchRevealScreen: React.FC<ScratchRevealScreenProps> = ({ onComp
     checkScratchPercentage();
   };
 
-  // Pointer event handlers
+  // Pointer event listeners
   const handlePointerDown = (e: React.PointerEvent<HTMLCanvasElement>) => {
     e.preventDefault();
     isScratchingRef.current = true;
@@ -257,43 +227,33 @@ export const ScratchRevealScreen: React.FC<ScratchRevealScreenProps> = ({ onComp
     lastPointRef.current = null;
   };
 
-  // Transition to next card or proceed to next stage
-  const handleNext = () => {
-    if (isTransitioning) return;
-    setIsTransitioning(true);
+  const handleProceedClick = () => {
+    if (isLeaving) return;
+    setIsLeaving(true);
     kawaiiAudio.playPop();
-
-    if (activeCard === 1) {
-      setTimeout(() => {
-        setActiveCard(2);
-        setIsTransitioning(false);
-      }, 400);
-    } else {
-      setTimeout(() => {
-        onComplete();
-      }, 400);
-    }
+    onDone();
   };
 
   return (
     <motion.div
+      key={`scratch-stage-${cardNumber}`}
       initial={{ opacity: 0, scale: 0.95, y: 15 }}
       animate={{ opacity: 1, scale: 1, y: 0 }}
-      exit={{ opacity: 0, scale: 0.95, y: -15, filter: 'blur(5px)' }}
-      transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-      className="relative z-10 w-full max-w-lg mx-auto px-4 py-4 sm:py-6 flex flex-col items-center select-none"
+      exit={{ opacity: 0, scale: 0.92, y: -15, filter: 'blur(8px)' }}
+      transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+      className="w-full flex flex-col items-center"
     >
       {/* Decorative Washi Tape */}
       <div className="w-36 h-6 washi-tape-pink rounded-sm mb-3 flex items-center justify-center border-t border-b border-white/60 shadow-sm">
         <span className="text-[10px] tracking-widest uppercase font-bold text-kawaii-choco-900/80 font-sans">
-          CARD {activeCard} OF 2 ♡
+          CARD {cardNumber} OF 2 ♡
         </span>
       </div>
 
       {/* Main Required Heading */}
       <div className="text-center mb-3">
         <h2 className="font-handwriting text-4xl sm:text-5xl text-kawaii-choco-900 font-bold tracking-wide">
-          {config.title}
+          Scratch to reveal ✨
         </h2>
         <p className="text-xs sm:text-sm text-kawaii-choco-600 font-sans font-medium mt-1">
           Rub your finger or mouse gently to reveal the photo!
@@ -329,34 +289,39 @@ export const ScratchRevealScreen: React.FC<ScratchRevealScreenProps> = ({ onComp
 
         {/* Central Scratch Card Frame */}
         <div
-          ref={cardContainerRef}
           className={`relative w-full max-w-sm aspect-[4/3] rounded-2xl overflow-hidden border-3 border-kawaii-pink-200 shadow-kawaii-md my-2 flex items-center justify-center transition-colors duration-300 ${
-            activeCard === 1 ? 'bg-white' : 'bg-black'
+            isSecondCard ? 'bg-black' : 'bg-white'
           }`}
         >
-          {/* Underlying Revealed Image (Edge to edge with high quality rendering) */}
+          {/* Underlying Image */}
           <div className="absolute inset-0 flex items-center justify-center">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src={currentCardData.image}
+              src={image}
               alt="Scratch revealed photo"
-              className={`w-full h-full select-none pointer-events-none transition-transform duration-500 ${
-                activeCard === 1
-                  ? 'object-contain bg-white p-1'
-                  : 'object-contain bg-black'
-              } ${isRevealed ? 'scale-100' : 'scale-98'}`}
+              className={`w-full h-full select-none pointer-events-none ${
+                isSecondCard
+                  ? 'object-contain bg-black'
+                  : 'object-contain bg-white p-1'
+              }`}
               draggable={false}
             />
           </div>
 
-          {/* HTML5 Scratch-Off Canvas Layer (touch-action: none prevents scrolling) */}
+          {/* 
+            HTML5 Scratch Canvas Layer:
+            Pre-configured with width=680 and height=510, with initial CSS background.
+            This ensures zero millisecond of transparency before canvas draws!
+          */}
           <canvas
             ref={canvasRef}
+            width={680}
+            height={510}
             onPointerDown={handlePointerDown}
             onPointerMove={handlePointerMove}
             onPointerUp={handlePointerUp}
             onPointerCancel={handlePointerUp}
-            className={`absolute inset-0 w-full h-full cursor-pointer touch-none z-10 transition-opacity duration-600 ${
+            className={`absolute inset-0 w-full h-full cursor-pointer touch-none z-10 transition-opacity duration-500 ${
               isRevealed ? 'opacity-0 pointer-events-none' : 'opacity-100'
             }`}
             style={{ touchAction: 'none' }}
@@ -402,7 +367,6 @@ export const ScratchRevealScreen: React.FC<ScratchRevealScreenProps> = ({ onComp
         <AnimatePresence mode="wait">
           {isRevealed && (
             <motion.div
-              key={`caption-${activeCard}`}
               initial={{ opacity: 0, y: 12, scale: 0.95 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: -10 }}
@@ -412,19 +376,19 @@ export const ScratchRevealScreen: React.FC<ScratchRevealScreenProps> = ({ onComp
               {/* Exact Caption Display */}
               <div className="p-3 sm:p-4 rounded-2xl bg-gradient-to-r from-kawaii-pink-50 via-white to-kawaii-pink-50 border-2 border-kawaii-pink-300 shadow-sm max-w-sm mb-3">
                 <p className="font-handwriting text-2xl sm:text-3xl text-kawaii-strawberry font-bold leading-snug">
-                  &ldquo;{currentCardData.caption}&rdquo;
+                  &ldquo;{caption}&rdquo;
                 </p>
               </div>
 
               {/* Continue Button */}
               <motion.button
                 type="button"
-                onClick={handleNext}
+                onClick={handleProceedClick}
                 whileHover={{ scale: 1.05, boxShadow: '0 8px 24px rgba(255, 77, 121, 0.35)' }}
                 whileTap={{ scale: 0.95 }}
                 className="inline-flex items-center gap-2 px-7 py-2.5 rounded-full bg-gradient-to-r from-kawaii-strawberry via-kawaii-pink-500 to-kawaii-pink-600 text-white font-sans font-bold text-xs sm:text-sm shadow-md transition-all cursor-pointer group"
               >
-                <span>{activeCard === 1 ? 'Next scratch card ♡' : 'Continue… 🐾'}</span>
+                <span>{isSecondCard ? 'Continue… 🐾' : 'Next scratch card ♡'}</span>
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </motion.button>
             </motion.div>
@@ -432,5 +396,42 @@ export const ScratchRevealScreen: React.FC<ScratchRevealScreenProps> = ({ onComp
         </AnimatePresence>
       </div>
     </motion.div>
+  );
+};
+
+export const ScratchRevealScreen: React.FC<{ onComplete: () => void }> = ({ onComplete }) => {
+  const [activeCard, setActiveCard] = useState<1 | 2>(1);
+  const config = content.scratchCards;
+
+  return (
+    <div className="relative z-10 w-full max-w-lg mx-auto px-4 py-4 sm:py-6 flex flex-col items-center select-none">
+      {/* 
+        mode="wait" ensures Card 1 smoothly fades out and unmounts completely 
+        BEFORE Card 2 mounts. Only one card exists in the DOM at any time!
+      */}
+      <AnimatePresence mode="wait">
+        {activeCard === 1 && (
+          <SingleScratchCard
+            key="scratch-card-1"
+            cardNumber={1}
+            image={config.card1.image}
+            caption={config.card1.caption}
+            isSecondCard={false}
+            onDone={() => setActiveCard(2)}
+          />
+        )}
+
+        {activeCard === 2 && (
+          <SingleScratchCard
+            key="scratch-card-2"
+            cardNumber={2}
+            image={config.card2.image}
+            caption={config.card2.caption}
+            isSecondCard={true}
+            onDone={onComplete}
+          />
+        )}
+      </AnimatePresence>
+    </div>
   );
 };
