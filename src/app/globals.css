@@ -1,0 +1,87 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --color-kawaii-pink: #FF85AC;
+  --color-kawaii-strawberry: #FF4D79;
+  --color-kawaii-cream: #FFFDF9;
+  --color-kawaii-choco: #542E1D;
+}
+
+/* Cute Kawaii Base */
+html {
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: #FFF2F6;
+  color: #542E1D;
+}
+
+body {
+  min-height: 100vh;
+  background-color: #FFF2F6;
+  background-image: 
+    radial-gradient(#FFD4E2 1.2px, transparent 1.2px),
+    radial-gradient(#FFD4E2 1.2px, #FFF2F6 1.2px);
+  background-size: 28px 28px;
+  background-position: 0 0, 14px 14px;
+}
+
+::selection {
+  background-color: #FFB8CF;
+  color: #542E1D;
+}
+
+/* Cute scrapbook card paper */
+.scrapbook-paper {
+  background: #FFFDF9;
+  border-radius: 2rem;
+  box-shadow: 
+    0 12px 30px -6px rgba(255, 92, 141, 0.2),
+    0 4px 12px rgba(84, 46, 29, 0.05);
+  border: 3px solid #FFEBF1;
+  position: relative;
+}
+
+/* Washi tape visual accents */
+.washi-tape-pink {
+  background: rgba(255, 184, 207, 0.85);
+  box-shadow: 0 2px 6px rgba(84, 46, 29, 0.1);
+  transform: rotate(-3deg);
+}
+
+.washi-tape-cream {
+  background: rgba(255, 240, 222, 0.9);
+  box-shadow: 0 2px 6px rgba(84, 46, 29, 0.1);
+  transform: rotate(2.5deg);
+}
+
+/* Custom kawaii pastel scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #FFEBF1;
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #FFADC2;
+  border-radius: 9999px;
+  border: 2px solid #FFEBF1;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #FF7597;
+}
+
+/* Prevent callout & text selection during interactive holding */
+.touch-hold-target {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+  touch-action: none;
+}
