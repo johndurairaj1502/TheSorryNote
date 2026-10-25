@@ -4,18 +4,22 @@ import React, { useState } from 'react';
 import { AnimatePresence } from 'framer-motion';
 import { KawaiiStickersBackground } from '@/components/KawaiiStickers';
 import { CuteAudioToggle } from '@/components/kawaii/CuteAudioToggle';
+import { GiftRibbonScreen } from '@/components/kawaii/GiftRibbonScreen';
 import { SealedIntroCard } from '@/components/kawaii/SealedIntroCard';
 import { SorryNoteCard } from '@/components/kawaii/SorryNoteCard';
+import { ScratchRevealScreen } from '@/components/kawaii/ScratchRevealScreen';
 import { CatPunishmentCard } from '@/components/kawaii/CatPunishmentCard';
 import { GlossyHeartHold } from '@/components/kawaii/GlossyHeartHold';
 import { FinalApologyMessage } from '@/components/kawaii/FinalApologyMessage';
 
 export default function Home() {
-  // Stage 1: Sealed Intro Card (Envelope Wax Seal)
-  // Stage 2: Sorry Note ("Next… 🥺♡")
-  // Stage 3: Cute Cat Punishment Mini-Interaction
-  // Stage 4: Glossy Heart Hold (NO BURST - smoothly shrinks/zooms out)
-  // Stage 5: Final Screen ("Sorry V🤍 ♡ — By yours, Kabi")
+  // Stage 1: Opening Screen — Pull Away the Ribbon 🎁
+  // Stage 2: Heart-Sealed Letter (Layered Envelope & Wax Seal) 💌
+  // Stage 3: Sorry Note (Exact preserved apology letter) 🥺♡
+  // Stage 4: Scratch to Reveal ✨ (Card 1: Bite cheek, Card 2: Lotte Choco Pie)
+  // Stage 5: Cat Punishment Tribunal (Madam Jii + Toy Hammer + "Sorry!" popup on impact) 🐱🔨
+  // Stage 6: Glossy Heart Hold (Smooth circular progress & Zoom OUT without burst) 💖
+  // Stage 7: Final Message ("Sorry V🤍 — By yours, Kabi" + WhatsApp button)
   const [stage, setStage] = useState<number>(1);
 
   return (
@@ -30,23 +34,31 @@ export default function Home() {
       <div className="relative z-10 w-full flex items-center justify-center my-auto">
         <AnimatePresence mode="wait">
           {stage === 1 && (
-            <SealedIntroCard key="stage-1" onOpen={() => setStage(2)} />
+            <GiftRibbonScreen key="stage-1" onRibbonRemoved={() => setStage(2)} />
           )}
 
           {stage === 2 && (
-            <SorryNoteCard key="stage-2" onNext={() => setStage(3)} />
+            <SealedIntroCard key="stage-2" onOpen={() => setStage(3)} />
           )}
 
           {stage === 3 && (
-            <CatPunishmentCard key="stage-3" onProceed={() => setStage(4)} />
+            <SorryNoteCard key="stage-3" onNext={() => setStage(4)} />
           )}
 
           {stage === 4 && (
-            <GlossyHeartHold key="stage-4" onComplete={() => setStage(5)} />
+            <ScratchRevealScreen key="stage-4" onComplete={() => setStage(5)} />
           )}
 
           {stage === 5 && (
-            <FinalApologyMessage key="stage-5" onReplay={() => setStage(1)} />
+            <CatPunishmentCard key="stage-5" onProceed={() => setStage(6)} />
+          )}
+
+          {stage === 6 && (
+            <GlossyHeartHold key="stage-6" onComplete={() => setStage(7)} />
+          )}
+
+          {stage === 7 && (
+            <FinalApologyMessage key="stage-7" onReplay={() => setStage(1)} />
           )}
         </AnimatePresence>
       </div>
@@ -55,4 +67,3 @@ export default function Home() {
     </main>
   );
 }
-

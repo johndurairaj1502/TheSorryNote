@@ -101,26 +101,15 @@ export const FinalApologyMessage: React.FC<FinalApologyMessageProps> = ({ onRepl
           transition={{ delay: 0.45, duration: 0.7 }}
           className="flex flex-col items-center mt-2 mb-3"
         >
-          {/* Main Headline */}
+          {/* Main Headline - Exactly Sorry V🤍 with single white heart */}
           <h1 className="font-handwriting text-5xl sm:text-6xl text-kawaii-strawberry font-bold tracking-wide leading-tight filter drop-shadow-sm">
-            Sorry V🤍 ♡
+            Sorry V🤍
           </h1>
 
           {/* Subtitle / Signature */}
           <p className="font-handwriting text-3xl sm:text-4xl text-kawaii-choco-800 font-semibold tracking-wide mt-2">
             — By yours, Kabi
           </p>
-        </motion.div>
-
-        {/* Gentle pulsating tiny heart */}
-        <motion.div
-          animate={{
-            scale: [1, 1.25, 1],
-          }}
-          transition={{ duration: 1.6, repeat: Infinity, ease: 'easeInOut' }}
-          className="text-2xl mt-1 text-kawaii-strawberry pointer-events-none"
-        >
-          💖
         </motion.div>
       </div>
 

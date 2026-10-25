@@ -269,6 +269,62 @@ class KawaiiAudioManager {
     osc.start(now);
     osc.stop(now + 0.45);
   }
+
+  // Silky ribbon untie whoosh and sparkle sound
+  public playRibbonUntie() {
+    this.initContext();
+    if (!this.ctx || !this.masterGain) return;
+
+    const now = this.ctx.currentTime;
+    
+    // Soft high-frequency shimmer slide
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(520, now);
+    osc.frequency.exponentialRampToValueAtTime(1180, now + 0.28);
+
+    gain.gain.setValueAtTime(0.001, now);
+    gain.gain.linearRampToValueAtTime(0.12, now + 0.05);
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.35);
+
+    osc.connect(gain);
+    gain.connect(this.masterGain);
+
+    osc.start(now);
+    osc.stop(now + 0.38);
+
+    setTimeout(() => {
+      this.playSparkle();
+    }, 120);
+  }
+
+  // Gentle subtle scratch friction sound
+  public playScratch() {
+    this.initContext();
+    if (!this.ctx || !this.masterGain) return;
+
+    const now = this.ctx.currentTime;
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+
+    // Fast noise-like frequency sweep for scratch feel
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(400 + Math.random() * 200, now);
+    osc.frequency.linearRampToValueAtTime(800 + Math.random() * 400, now + 0.04);
+
+    gain.gain.setValueAtTime(0.001, now);
+    gain.gain.linearRampToValueAtTime(0.04, now + 0.01);
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.05);
+
+    osc.connect(gain);
+    gain.connect(this.masterGain);
+
+    osc.start(now);
+    osc.stop(now + 0.06);
+  }
+
   // Compatibility methods
   public playWaxSealBreak() {
     this.playPop();

@@ -56,6 +56,17 @@ export interface AppContent {
     teaserSubtitle: string;
     buttonText: string;
   };
+  scratchCards: {
+    title: string;
+    card1: {
+      image: string;
+      caption: string;
+    };
+    card2: {
+      image: string;
+      caption: string;
+    };
+  };
   holdInteraction: {
     promptAbove: string;
     promptBelow: string;
@@ -177,6 +188,19 @@ export const content: AppContent = {
     teaserTitle: "One last little thing…",
     teaserSubtitle: "It's something I want to ask you, from my heart.",
     buttonText: "I'm ready ♡",
+  },
+
+  // Screen: Scratch to Reveal Interactive Cards
+  scratchCards: {
+    title: "Scratch to reveal ✨",
+    card1: {
+      image: "/images/scratch-bite.jpg",
+      caption: "I will bite here if you not accept my sorry",
+    },
+    card2: {
+      image: "/images/scratch-chocopie.jpg",
+      caption: "if you forgive me and accept my sorry I will buy a lotte choco pie for you",
+    },
   },
 
   // Screen 6: "Hold to Forgive Me" Interaction
